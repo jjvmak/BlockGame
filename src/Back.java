@@ -18,14 +18,11 @@ public class Back extends JPanel implements ActionListener, KeyListener {
 	private int playerXPos = 0;
 	private int playerYPos = 0;
 	private Timer timer;
-	private HashMap<Integer, Rock> hs = new HashMap();
 	private int enemyXPos = 550;
 	private int enemyYPos = 0;
 
 	public ArrayList<Rock> rocks = new ArrayList<>();
 	private Random rnd = new Random();
-
-
 
 	private boolean didMoveAlready;
 
@@ -40,13 +37,13 @@ public class Back extends JPanel implements ActionListener, KeyListener {
 		setFocusTraversalKeysEnabled(false);
 		timer = new Timer(50, this);
 		timer.start();
-		
+
 	}
 
 	public void paint(Graphics g) {
 
 		if (shouldRender) {
-				
+
 			int das = 0;
 			super.paint(g);
 
@@ -54,17 +51,6 @@ public class Back extends JPanel implements ActionListener, KeyListener {
 				g.setColor(Color.BLUE);
 				g.fillRect(551, das, 50, 50);
 				das += 50;
-			}
-			
-			for (int x = 0; x < 550; x += 50) {
-				for (int y = 0; y < 400; y += 50) {
-					System.out.println(x+", "+y);
-					if (isTrap(x, y)) {
-						g.setColor(Color.RED);
-					
-						g.fillRect(x, y, 50, 50);
-					}
-				}
 			}
 
 			for (int i = 0; i < rocks.size(); i++) {
@@ -85,12 +71,7 @@ public class Back extends JPanel implements ActionListener, KeyListener {
 			super.paint(g);
 			g.dispose();
 		}
-
-
-
 	}
-
-
 
 	@Override
 	public void keyPressed(KeyEvent e) {
@@ -147,9 +128,6 @@ public class Back extends JPanel implements ActionListener, KeyListener {
 	public void actionPerformed(ActionEvent e) {
 		timer.start();
 		repaint();
-
-
-
 	}
 
 	public void generateRocks(int n) {
@@ -163,8 +141,7 @@ public class Back extends JPanel implements ActionListener, KeyListener {
 	}
 
 	public void checkEndRule() {
-		int tempHash = hashCode(playerXPos, playerYPos);
-		System.out.println(playerXPos+", "+playerYPos+", "+enemyXPos+", "+enemyYPos+",    "+tempHash);
+
 		if (playerXPos == enemyXPos && playerYPos == enemyYPos) {
 			Gui.gameOver();
 			shouldRender = false;
@@ -184,88 +161,7 @@ public class Back extends JPanel implements ActionListener, KeyListener {
 	}
 
 	public void enemyLogic() {
-		didMoveAlready = false;
 
-		if ((!isYbalanced() && isPossibleMoveDown(enemyXPos, enemyXPos)) && (!isYbalanced() && isPossibleMoveUp(enemyXPos, enemyYPos))) {
-			System.out.println("YOLO");
-			
-			if(enemyYPos < playerYPos && isPossibleMoveDown(enemyXPos, enemyYPos) && !isTrap(enemyXPos, enemyYPos + 50)) {
-				enemyYPos += 50;
-				didMoveAlready = true;
-			}
-			else if(enemyYPos > playerYPos && isPossibleMoveUp(enemyXPos, enemyYPos) && !isTrap(enemyXPos, enemyYPos - 50)) {
-				enemyYPos -= 50;
-				didMoveAlready = true;
-			}
-		}
-		if ((isYbalanced() && isPossibleMoveRight(enemyXPos, enemyYPos) && !didMoveAlready) && (isYbalanced() && isPossibleMoveLeft(enemyXPos, enemyYPos) && !didMoveAlready)) {
-			
-			System.out.println("PITS");
-			if (playerXPos < enemyXPos && isPossibleMoveLeft(enemyXPos, enemyYPos) && !isTrap(enemyXPos - 50, enemyYPos)) {
-				enemyXPos -= 50;
-				didMoveAlready = true;
-			}
-
-			else if (playerXPos > enemyXPos && isPossibleMoveRight(enemyXPos, enemyYPos) && !isTrap(enemyXPos + 50, enemyYPos)) {	
-				enemyXPos += 50;
-				didMoveAlready = true;
-			}
-		}
-		if ((!isYbalanced() && isPossibleMoveRight(enemyXPos, enemyYPos) && !didMoveAlready) && (!isYbalanced() && isPossibleMoveLeft(enemyXPos, enemyYPos) && !didMoveAlready)) {
-			
-			System.out.println("MATAFAKA");
-			if (playerXPos < enemyXPos && isPossibleMoveLeft(enemyXPos, enemyYPos) && !isTrap(enemyXPos - 50, enemyYPos)) {
-				enemyXPos -= 50;
-				didMoveAlready = true;
-			}
-
-
-			else if (playerXPos > enemyXPos && isPossibleMoveRight(enemyXPos, enemyYPos) && !isTrap(enemyXPos + 50, enemyYPos)) {	
-				enemyXPos += 50;
-				didMoveAlready = true;
-			}
-		}
-
-		if (!didMoveAlready) {
-			System.out.println("WAAAAAAAAAAAAAAAAAAAAAA");
-			int attemp = 0;
-			while (!didMoveAlready) {
-
-				Random rnd = new Random();
-				int yolotus = rnd.nextInt(4);
-				System.out.println(attemp);
-
-
-
-				if ((isPossibleMoveLeft(enemyXPos, enemyYPos)) && yolotus < 2 && !isTrap(enemyXPos - 50, enemyYPos)) {
-					enemyXPos -= 50;
-					didMoveAlready = true;
-				}
-
-//				else if((isPossibleMoveDown(enemyXPos, enemyYPos)) && yolotus < 2 && !isTrap(enemyXPos, enemyYPos + 50)) {
-//					enemyYPos += 50;
-//					didMoveAlready = true;
-//				}
-//				else if((isPossibleMoveUp(enemyXPos, enemyYPos)) && yolotus == 3 && !isTrap(enemyXPos , enemyYPos - 50)) {
-//					enemyYPos -= 50;
-//					didMoveAlready = true;
-//				}
-
-				else if ((isPossibleMoveRight(enemyXPos, enemyYPos)) && yolotus > 2 && !isTrap(enemyXPos + 50, enemyYPos)) {	
-					enemyXPos += 50;
-					didMoveAlready = true;
-				}
-
-				else if (attemp > 10) {
-					System.out.println("----------------------------------");
-					break;
-				}
-
-				attemp++;
-			}
-
-
-		}
 	}
 
 	private boolean isYbalanced() {
@@ -273,14 +169,14 @@ public class Back extends JPanel implements ActionListener, KeyListener {
 		return false;
 	}
 
-		public boolean isPossibleMoveRight(int xPos, int yPos) {
-			for (int i = 0; i < rocks.size(); i++) {
-				if (xPos == rocks.get(i).getxPos()-50 && yPos ==  rocks.get(i).getyPos()) {
-					return false;
-				} 
-			}
-			return true;
+	public boolean isPossibleMoveRight(int xPos, int yPos) {
+		for (int i = 0; i < rocks.size(); i++) {
+			if (xPos == rocks.get(i).getxPos()-50 && yPos ==  rocks.get(i).getyPos()) {
+				return false;
+			} 
 		}
+		return true;
+	}
 
 
 	public boolean isPossibleMoveLeft(int xPos, int yPos) {
@@ -309,37 +205,13 @@ public class Back extends JPanel implements ActionListener, KeyListener {
 		}
 		return true;
 	}
-	
-	public boolean isTrap(int xPos, int yPos) {
-		int possibleMoves = 0;
-		if (isPossibleMoveRight(xPos, yPos)) possibleMoves++;
-		if (isPossibleMoveLeft(xPos, yPos)) possibleMoves++;
-		if (isPossibleMoveDown(xPos, yPos)) possibleMoves++;
-		if (isPossibleMoveUp(xPos, yPos)) possibleMoves++;
-		
-		if (possibleMoves <= 1) return true;
-		return false;
-	}
 
 	public void setMatch() {
 		Gui.appendText(""+matchNumber);
 
 	}
 
-	public int hashCode(int xPos, int yPos) {
-		final int prime = 5;
-		int result = 1;
-		result = prime * result + xPos;
-		result = prime * result + yPos;
-		return result;
-	}
-	
 	public void deBugRocks() {
-		
+
 	}
-	
-	
-
-
-
 }
