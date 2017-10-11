@@ -31,13 +31,23 @@ public class Back extends JPanel implements ActionListener, KeyListener {
 	private boolean shouldRender = true;
 
 	public Back() {
-		generateRocks(30);
+		
+		
 		addKeyListener(this);
 		setFocusable(true);
 		setFocusTraversalKeysEnabled(false);
 		timer = new Timer(50, this);
 		timer.start();
 
+	}
+
+	public void initTestingMap() {
+
+		rocks.add(new Rock(50, 50));
+		rocks.add(new Rock(50, 100));
+		rocks.add(new Rock(100, 300));
+		rocks.add(new Rock(200, 200));
+		rocks.add(new Rock(250, 200));
 	}
 
 	public void paint(Graphics g) {
@@ -49,7 +59,7 @@ public class Back extends JPanel implements ActionListener, KeyListener {
 
 			for (int i = 0; i < 10; i++) {
 				g.setColor(Color.BLUE);
-				g.fillRect(551, das, 50, 50);
+				g.fillRect(550, das, 50, 50);
 				das += 50;
 			}
 
@@ -77,39 +87,54 @@ public class Back extends JPanel implements ActionListener, KeyListener {
 	public void keyPressed(KeyEvent e) {
 
 		if (e.getKeyCode() == KeyEvent.VK_D) {
-			if (playerXPos < 501 && isPossibleMoveRight(playerXPos, playerYPos)) {
-				playerXPos += 50;
-				enemyLogic();
+			moveRight();
 
-			}
 		}
 
 		if (e.getKeyCode() == KeyEvent.VK_A) {
-			if (playerXPos > 0 && isPossibleMoveLeft(playerXPos, playerYPos)) {
-				playerXPos -= 50;
-				enemyLogic();
-
-			}
+			moveLeft();
 		}
 
 		if (e.getKeyCode() == KeyEvent.VK_W) {
-			if (playerYPos > 0 && isPossibleMoveUp(playerXPos, playerYPos)) {
-				playerYPos -= 50;
-				enemyLogic();
-
-			}
+			moveUp();
 		}
 
 		if (e.getKeyCode() == KeyEvent.VK_S) {
-			if (playerYPos < 301 && isPossibleMoveDown(playerXPos, playerYPos)) {
-				playerYPos += 50;
-				enemyLogic();
-			}
+			moveDown();
 		}
 
-
 		checkEndRule();
+	}
 
+	public void moveRight() {
+		if (playerXPos < 550 && isPossibleMoveRight(playerXPos, playerYPos)) {
+			playerXPos += 50;
+			enemyLogic();
+
+		}
+	}
+
+	public void moveLeft() {
+		if (playerXPos > 0 && isPossibleMoveLeft(playerXPos, playerYPos)) {
+			playerXPos -= 50;
+			enemyLogic();
+
+		}
+	}
+
+	public void moveUp() {
+		if (playerYPos > 0 && isPossibleMoveUp(playerXPos, playerYPos)) {
+			playerYPos -= 50;
+			enemyLogic();
+
+		}
+	}
+
+	public void moveDown() {
+		if (playerYPos < 350 && isPossibleMoveDown(playerXPos, playerYPos)) {
+			playerYPos += 50;
+			enemyLogic();
+		}
 	}
 
 	@Override
@@ -134,10 +159,7 @@ public class Back extends JPanel implements ActionListener, KeyListener {
 		int amount = n;
 		for (int i = 0; i < amount; i++) {
 			rocks.add(new Rock());
-			//Rock temp = new Rock();
-			//hs.put(temp.hashCode(), temp);
 		}
-		deBugRocks();
 	}
 
 	public void checkEndRule() {
@@ -211,7 +233,35 @@ public class Back extends JPanel implements ActionListener, KeyListener {
 
 	}
 
-	public void deBugRocks() {
+	public int getPlayerXPos() {
+		return playerXPos;
+	}
 
+	public int getPlayerYPos() {
+		return playerYPos;
+	}
+
+	public int getEnemyXPos() {
+		return enemyXPos;
+	}
+
+	public int getEnemyYPos() {
+		return enemyYPos;
+	}
+
+	public void setPlayerXPos(int playerXPos) {
+		this.playerXPos = playerXPos;
+	}
+
+	public void setPlayerYPos(int playerYPos) {
+		this.playerYPos = playerYPos;
+	}
+
+	public void setEnemyXPos(int enemyXPos) {
+		this.enemyXPos = enemyXPos;
+	}
+
+	public void setEnemyYPos(int enemyYPos) {
+		this.enemyYPos = enemyYPos;
 	}
 }

@@ -11,6 +11,11 @@ public class Rock {
 		generateLocation();
 	}
 	
+	public Rock(int xPos, int yPos) {
+		this.xPos = xPos;
+		this.yPos = yPos;
+	}
+	
 	public void generateLocation() {
 		int temp = rnd.nextInt(550);
 		setxPos(round(temp));

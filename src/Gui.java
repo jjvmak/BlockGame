@@ -51,6 +51,7 @@ public class Gui {
 		frame.setResizable(false);
 		
 		back = new Back();
+		back.generateRocks(30);
 		
 		back.setBackground(Color.GRAY);
 		
@@ -64,9 +65,6 @@ public class Gui {
 		back.add(textField);
 		textField.setColumns(10);
 		back.setMatch();
-		
-		
-		
 		
 	}
 	
