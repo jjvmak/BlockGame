@@ -7,6 +7,9 @@ import java.awt.event.KeyListener;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.PriorityQueue;
 import java.util.Random;
 import java.util.Set;
 
@@ -31,8 +34,8 @@ public class Back extends JPanel implements ActionListener, KeyListener {
 	private boolean shouldRender = true;
 
 	public Back() {
-		
-		
+
+
 		addKeyListener(this);
 		setFocusable(true);
 		setFocusTraversalKeysEnabled(false);
@@ -55,8 +58,12 @@ public class Back extends JPanel implements ActionListener, KeyListener {
 		rocks.add(new Rock(200, 150));
 		rocks.add(new Rock(300, 150));
 		//trap at 250, 150
-		//rocks.add(new Rock(250, 150));
-		
+
+		//setPlayerXPos(150);
+		//setPlayerYPos(200);
+		//setEnemyXPos(300);
+		//setEnemyYPos(100);
+
 	}
 
 	public void paint(Graphics g) {
@@ -90,6 +97,8 @@ public class Back extends JPanel implements ActionListener, KeyListener {
 			super.paint(g);
 			g.dispose();
 		}
+
+		checkEndRule();
 	}
 
 	@Override
@@ -112,7 +121,7 @@ public class Back extends JPanel implements ActionListener, KeyListener {
 			moveDown();
 		}
 
-		checkEndRule();
+
 	}
 
 	public void moveRight() {
@@ -173,10 +182,21 @@ public class Back extends JPanel implements ActionListener, KeyListener {
 
 	public void checkEndRule() {
 
-		if (playerXPos == enemyXPos && playerYPos == enemyYPos) {
-			Gui.gameOver();
-			shouldRender = false;
+		int xEnd = Math.abs(playerXPos-enemyXPos);
+		int yEnd = Math.abs(playerYPos-enemyYPos);
+
+		if (xEnd <= 0 && yEnd <= 0) {
 			repaint();
+			Gui.gameOver();
+
+			repaint();
+			shouldRender = false;
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 
 		if (playerXPos == 550) {
@@ -193,13 +213,97 @@ public class Back extends JPanel implements ActionListener, KeyListener {
 
 	public void enemyLogic() {
 
+		if (playerXPos == enemyXPos && playerYPos == enemyYPos) {
+			checkEndRule();
+		}
+
+		/* If y-coordinate is not balanced, enemy should always first try to move
+		 * inline with the player, before moving left or right,
+		 * if there is no rock on the path, or the move 
+		 * would cause enemy to step in trap.
+		 */
+		if (!isYbalanced()) {
+			if (isPlayerLower() && isPossibleMove(enemyXPos, enemyYPos+50) && !istTrap(enemyXPos, enemyYPos+50)) {
+				setEnemyYPos(enemyYPos + 50);
+				return;
+			}
+			if (!isPlayerLower() && isPossibleMove(enemyXPos, enemyYPos-50) && !istTrap(enemyXPos, enemyYPos-50)) {
+				setEnemyYPos(enemyYPos - 50);
+				return;
+			}
+		}
+
+		/* If y-coordinate is balanced, enemy should try to move towards player,
+		 * if there is no rock blocking path or next move is a trap.
+		 */
+		if (isYbalanced()) {
+			if (isPlayerFoward() && isPossibleMove(enemyXPos-50, enemyYPos) && !istTrap(enemyXPos-50, enemyYPos)) {
+				setEnemyXPos(enemyXPos - 50);
+				return;
+			}
+			if (!isPlayerFoward() && isPossibleMove(enemyXPos+50, enemyYPos) && !istTrap(enemyXPos+50, enemyYPos)) {
+				setEnemyXPos(enemyXPos + 50);
+				return;
+			}
+		}
+
+
+		/*
+		 * If all above fails, then try to calculate best possible move
+		 * 
+		 */
+		//1 up
+		//2 down
+		//3 right
+		//4 left
+		int direction = calculateBestMove();
+		
+		switch (direction) {
+		case 1:
+			setEnemyYPos(enemyYPos-50);
+			break;
+		
+		case 2:
+			setEnemyYPos(enemyYPos+50);
+			break;
+		
+		case 3:
+			setEnemyXPos(enemyXPos+50);
+			break;
+		
+		case 4:
+			setEnemyXPos(enemyXPos-50);
+			break;
+		}
+		
 	}
 
-	private boolean isYbalanced() {
+	public boolean isPlayerLower() {
+		if (playerYPos < enemyYPos) return false;
+		return true;
+	}
+
+	public boolean isYbalanced() {
 		if (playerYPos == enemyYPos) return true;
 		return false;
 	}
-	
+
+	public boolean isPlayerFoward() {
+		if (playerXPos <= enemyXPos) return true;
+		return false;
+	}
+
+	public boolean isKillPossible() {
+		int xEnd = Math.abs(playerXPos-enemyXPos);
+		int yEnd = Math.abs(playerYPos-enemyYPos);
+
+		if (xEnd <= 0 && yEnd <= 0 && isPossibleMove(playerXPos, playerYPos)) {
+			return true;
+		}
+
+		return false;
+	}
+
 	public boolean isPossibleMove(int xPos, int yPos) {
 		for (int i = 0; i < rocks.size(); i++) {
 			if (xPos == rocks.get(i).getxPos() &&  yPos ==  rocks.get(i).getyPos()) {
@@ -207,6 +311,24 @@ public class Back extends JPanel implements ActionListener, KeyListener {
 			}
 		}
 		return true;
+	}
+
+	public boolean istTrap(int x, int y) {
+
+		int surrounding = 0;
+
+		if (!isPossibleMove(x+50, y)) surrounding++;
+		if (!isPossibleMove(x-50, y)) surrounding++;
+		if (!isPossibleMove(x, y+50)) surrounding++;
+		if (!isPossibleMove(x, y-50)) surrounding++;
+
+		if (surrounding > 2) {
+			return true;
+		} 
+		else {
+			return false;
+		}
+
 	}
 
 	public void setMatch() {
@@ -246,24 +368,62 @@ public class Back extends JPanel implements ActionListener, KeyListener {
 		this.enemyYPos = enemyYPos;
 	}
 
-	public boolean istTrap(int x, int y) {
-		
-		int surrounding = 0;
-		System.out.println(x +", "+y);
-		
-		if (!isPossibleMove(x+50, y)) surrounding++;
-		if (!isPossibleMove(x-50, y)) surrounding++;
-		if (!isPossibleMove(x, y+50)) surrounding++;
-		if (!isPossibleMove(x, y-50)) surrounding++;
-		
-		System.out.println(surrounding);
-		
-		if (surrounding > 2) {
-			return true;
-		} 
-		else {
-			return false;
+
+	public int calculateBestMove() {
+		int diffUp = 9001;
+		int diffDown = 9001;
+		int diffRight = 9001;
+		int diffLeft = 9001;
+
+		//1 up
+		//2 down
+		//3 right
+		//4 left
+		HashMap<Integer, Integer> map = new HashMap<Integer, Integer>();
+
+		//UP
+		if (isPossibleMove(enemyXPos, enemyYPos-50) && !istTrap(enemyXPos, enemyYPos-50)) {
+			diffUp = Math.abs(playerXPos - enemyXPos) + Math.abs(playerYPos - (enemyYPos - 50));
+
 		}
-		
+		//DOWN
+		if (isPossibleMove(enemyXPos, enemyYPos+50) && !istTrap(enemyXPos, enemyYPos+50)) {
+			diffDown = Math.abs(playerXPos - enemyXPos) + Math.abs(playerYPos - (enemyYPos + 50));
+
+		}
+		//RIGHT
+		if (isPossibleMove(enemyXPos+50, enemyYPos) && !istTrap(enemyXPos+50, enemyYPos)) {
+			diffRight = Math.abs(playerXPos - enemyXPos) + Math.abs((playerYPos+50) - enemyYPos);
+
+		}
+		//LEFT
+		if (isPossibleMove(enemyXPos-50, enemyYPos) && !istTrap(enemyXPos-50, enemyYPos)) {
+			diffLeft = Math.abs(playerXPos - enemyXPos) + Math.abs((playerYPos-50) - enemyYPos);
+
+		}
+		map.put(1, diffUp);
+		map.put(2, diffDown);
+		map.put(3, diffRight);
+		map.put(4, diffLeft);
+
+		int currentBestValue = map.get(1);
+		System.out.println("init bestvalue from key 1 = " + map.get(1));
+		int currentBestKey = 1;
+		System.out.println("init bestkey = 1");
+
+		for (int i = 2; i < 5; i++) {
+			System.out.println("checking key "+i+". value = "+map.get(i));
+			System.out.println("comparing currentvalue:" + currentBestValue +" and next value: "+ map.get(i) );
+			if (currentBestValue > map.get(i)) {
+				currentBestValue = map.get(i);
+				System.out.println("bestvalue updated: "+map.get(i));
+				currentBestKey = i;
+				System.out.println("bestkey updated: "+i);
+			}
+		}
+		System.out.println("returning key: "+currentBestKey);
+		return currentBestKey;
 	}
+
+
 }
