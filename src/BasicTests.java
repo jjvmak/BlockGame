@@ -17,6 +17,19 @@ public class BasicTests {
 		back = new Back();
 	}
 	
+	//LOGIC
+	@Test
+	public void isPossibleMove() {
+		back.initTestingMap();
+		assertTrue(back.isPossibleMove(250, 150));
+		assertFalse(back.isPossibleMove(250, 200));
+	}
+	
+	public void isTrap() {
+		back.initTestingMap();
+		assertTrue(back.istTrap(250, 150));
+	}
+	
 	//PLAYER TESTS
 	@Test
 	public void playerStartingPos() {

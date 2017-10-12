@@ -48,6 +48,15 @@ public class Back extends JPanel implements ActionListener, KeyListener {
 		rocks.add(new Rock(100, 300));
 		rocks.add(new Rock(200, 200));
 		rocks.add(new Rock(250, 200));
+		rocks.add(new Rock(300, 200));
+		rocks.add(new Rock(300, 250));
+		rocks.add(new Rock(200, 250));
+		//trap at 250,250
+		rocks.add(new Rock(200, 150));
+		rocks.add(new Rock(300, 150));
+		//trap at 250, 150
+		//rocks.add(new Rock(250, 150));
+		
 	}
 
 	public void paint(Graphics g) {
@@ -107,7 +116,7 @@ public class Back extends JPanel implements ActionListener, KeyListener {
 	}
 
 	public void moveRight() {
-		if (playerXPos < 550 && isPossibleMoveRight(playerXPos, playerYPos)) {
+		if (playerXPos < 550 && isPossibleMove(playerXPos+50, playerYPos)) {
 			playerXPos += 50;
 			enemyLogic();
 
@@ -115,7 +124,7 @@ public class Back extends JPanel implements ActionListener, KeyListener {
 	}
 
 	public void moveLeft() {
-		if (playerXPos > 0 && isPossibleMoveLeft(playerXPos, playerYPos)) {
+		if (playerXPos > 0 && isPossibleMove(playerXPos-50, playerYPos)) {
 			playerXPos -= 50;
 			enemyLogic();
 
@@ -123,7 +132,7 @@ public class Back extends JPanel implements ActionListener, KeyListener {
 	}
 
 	public void moveUp() {
-		if (playerYPos > 0 && isPossibleMoveUp(playerXPos, playerYPos)) {
+		if (playerYPos > 0 && isPossibleMove(playerXPos, playerYPos-50)) {
 			playerYPos -= 50;
 			enemyLogic();
 
@@ -131,7 +140,7 @@ public class Back extends JPanel implements ActionListener, KeyListener {
 	}
 
 	public void moveDown() {
-		if (playerYPos < 350 && isPossibleMoveDown(playerXPos, playerYPos)) {
+		if (playerYPos < 350 && isPossibleMove(playerXPos, playerYPos+50)) {
 			playerYPos += 50;
 			enemyLogic();
 		}
@@ -190,40 +199,12 @@ public class Back extends JPanel implements ActionListener, KeyListener {
 		if (playerYPos == enemyYPos) return true;
 		return false;
 	}
-
-	public boolean isPossibleMoveRight(int xPos, int yPos) {
+	
+	public boolean isPossibleMove(int xPos, int yPos) {
 		for (int i = 0; i < rocks.size(); i++) {
-			if (xPos == rocks.get(i).getxPos()-50 && yPos ==  rocks.get(i).getyPos()) {
+			if (xPos == rocks.get(i).getxPos() &&  yPos ==  rocks.get(i).getyPos()) {
 				return false;
-			} 
-		}
-		return true;
-	}
-
-
-	public boolean isPossibleMoveLeft(int xPos, int yPos) {
-		for (int i = 0; i < rocks.size(); i++) {
-			if (xPos == rocks.get(i).getxPos()+50 && yPos ==  rocks.get(i).getyPos()) {
-				return false;
-			} 
-		}
-		return true;
-	}
-
-	public boolean isPossibleMoveUp(int xPos, int yPos) {
-		for (int i = 0; i < rocks.size(); i++) {
-			if (xPos == rocks.get(i).getxPos() && yPos ==  rocks.get(i).getyPos()+50) {
-				return false;
-			} 
-		}
-		return true;
-	}
-
-	public boolean isPossibleMoveDown(int xPos, int yPos) {
-		for (int i = 0; i < rocks.size(); i++) {
-			if (xPos == rocks.get(i).getxPos() && yPos ==  rocks.get(i).getyPos()-50) {
-				return false;
-			} 
+			}
 		}
 		return true;
 	}
@@ -263,5 +244,26 @@ public class Back extends JPanel implements ActionListener, KeyListener {
 
 	public void setEnemyYPos(int enemyYPos) {
 		this.enemyYPos = enemyYPos;
+	}
+
+	public boolean istTrap(int x, int y) {
+		
+		int surrounding = 0;
+		System.out.println(x +", "+y);
+		
+		if (!isPossibleMove(x+50, y)) surrounding++;
+		if (!isPossibleMove(x-50, y)) surrounding++;
+		if (!isPossibleMove(x, y+50)) surrounding++;
+		if (!isPossibleMove(x, y-50)) surrounding++;
+		
+		System.out.println(surrounding);
+		
+		if (surrounding > 2) {
+			return true;
+		} 
+		else {
+			return false;
+		}
+		
 	}
 }
