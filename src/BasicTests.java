@@ -1,9 +1,18 @@
 import static org.junit.Assert.*;
 
+import java.awt.List;
 import java.awt.event.KeyEvent;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
+
+import Pathfinder.Graph;
+import Pathfinder.Node;
+import Pathfinder.Shortestpath;
 
 
 public class BasicTests {
@@ -23,71 +32,9 @@ public class BasicTests {
 		back.initTestingMap();
 		assertTrue(back.isPossibleMove(250, 150));
 		assertFalse(back.isPossibleMove(250, 200));
-	}
-	@Test
-	public void isTrap() {
-		back.initTestingMap();
-		assertTrue(back.istTrap(250, 150));
-	}
-	@Test
-	public void isYbalanced() {
-		back.setPlayerXPos(0);
-		back.setPlayerYPos(0);
-		back.setEnemyXPos(200);
-		back.setEnemyYPos(0);
-		assertTrue(back.isYbalanced());
-
-		back.setPlayerXPos(0);
-		back.setPlayerYPos(0);
-		back.setEnemyXPos(200);
-		back.setEnemyYPos(50);
-		assertFalse(back.isYbalanced());
-	}
-
-	@Test
-	public void isPlayerLower() {
-		back.setPlayerXPos(0);
-		back.setPlayerYPos(0);
-		back.setEnemyXPos(200);
-		back.setEnemyYPos(50);
-		assertFalse(back.isPlayerLower());
-
-		back.setPlayerXPos(0);
-		back.setPlayerYPos(50);
-		back.setEnemyXPos(200);
-		back.setEnemyYPos(0);
-		assertTrue(back.isPlayerLower());
-	}
-
-	@Test
-	public void isPlayerFoward() {
-		back.setPlayerXPos(0);
-		back.setPlayerYPos(0);
-		back.setEnemyXPos(200);
-		back.setEnemyYPos(50);
-		assertTrue(back.isPlayerFoward());
-
-		back.setPlayerXPos(200);
-		back.setPlayerYPos(0);
-		back.setEnemyXPos(0);
-		back.setEnemyYPos(0);
-		assertFalse(back.isPlayerFoward());
-	}
-	@Test
-	public void bestMove() {
-		back.initTestingMap();
-		back.setPlayerXPos(150);
-		back.setPlayerYPos(200);
-		back.setEnemyXPos(300);
-		back.setEnemyYPos(100);
-		//playerMoveDown();
-		//1 up
-		//2 down
-		//3 right
-		//4 left
-		assertEquals(4, back.calculateBestMove());
 
 	}
+
 
 	//PLAYER TESTS
 	@Test
@@ -143,30 +90,6 @@ public class BasicTests {
 		assertEquals(0, back.getEnemyYPos());
 	}
 
-	@Test public void balancingY() {
-		back.setPlayerXPos(0);
-		back.setPlayerYPos(0);
-		back.enemyLogic();
-
-		assertEquals(0, back.getEnemyYPos());
-
-		back.moveDown();
-
-		assertEquals(50, back.getEnemyYPos());
-
-		back.moveUp();
-
-		assertEquals(0, back.getEnemyYPos());
-
-		back.initTestingMap();
-		back.setEnemyXPos(250);
-		back.setEnemyYPos(100);
-		back.setPlayerXPos(0);
-		back.setPlayerYPos(100);
-		back.moveDown();
-		assertEquals(100, back.getEnemyYPos());
-	}
-
 	@Test
 	public void movingTowardsPlayer() {
 		//IF PATH IS NOT BLOCKED!
@@ -182,5 +105,64 @@ public class BasicTests {
 		back.moveRight();
 		assertEquals(100, back.getEnemyXPos());
 	}
-
+	
+	@Test
+	public void shortestPath() {
+		back.initTestingMap();
+		Graph graph = new Graph();
+		ArrayList<Node> nodes = new ArrayList<Node>();
+		for (int x = 0; x <= 550; x += 50) {
+			for (int y = 0; y <= 350; y += 50) {
+				//System.out.println(x + " "+y);
+				Node node = new Node(x, y);
+				nodes.add(node);
+			}
+		}
+		
+		for (int i = 0; i < nodes.size(); i++) {
+			
+			int x = nodes.get(i).getx();
+			int y = nodes.get(i).gety();
+			
+			if(!back.isPossibleMove(x, y)) {
+				continue;
+			}
+			
+			for (int j = 0; j < nodes.size(); j++) {
+				
+				if (!back.isPossibleMove(nodes.get(j).getx(), nodes.get(j).gety())) {
+					continue;
+				}
+				
+				if (nodes.get(j).getx() == x && nodes.get(j).gety() == y+50 ||
+				    nodes.get(j).getx() == x+50 && nodes.get(j).gety() == y ||
+				    nodes.get(j).getx() == x && nodes.get(j).gety() == y-50 ||
+				    nodes.get(j).getx() == x-50 && nodes.get(j).gety() == y){
+					
+					nodes.get(i).addDestination(nodes.get(j), 1);
+					graph.addNode(nodes.get(i));
+					//System.out.println("node "+nodes.get(i)+" is neighboring "+nodes.get(j));
+				}
+				
+			}
+		}
+		Node target = null;
+		for (int t = 0; t < nodes.size(); t++) {
+			if (nodes.get(t).getx() == 550 && nodes.get(t).gety() == 350) {
+				 target = nodes.get(t);
+			}
+		}
+		
+		graph = Shortestpath.calculateShortestPathFromSource(graph, target);
+		Set<Node> n = graph.getNodes();
+		// System.out.println(n);
+		for (Node i : n) {
+		 //	System.out.println(i + " "+ i.getShortestPath());
+			if (i.getx() == 0 && i.gety() == 50) {
+				System.out.println(i + " "+ i.getShortestPath().get(i.getShortestPath().size()-1));
+			}
+		} 
+	}
+	
+	
 }

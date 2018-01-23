@@ -51,8 +51,8 @@ public class Gui {
 		frame.setResizable(false);
 		
 		back = new Back();
-		//back.generateRocks(30);
-		back.initTestingMap();
+		back.generateRocks(30);
+		//back.initTestingMap();
 		
 		back.setBackground(Color.GRAY);
 		
