@@ -1,19 +1,11 @@
 import static org.junit.Assert.*;
-
-import java.awt.List;
-import java.awt.event.KeyEvent;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.Set;
-
 import org.junit.Before;
 import org.junit.Test;
-
 import Pathfinder.Graph;
 import Pathfinder.Node;
 import Pathfinder.Shortestpath;
-
 
 public class BasicTests {
 

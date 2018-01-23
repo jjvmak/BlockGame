@@ -1,15 +1,8 @@
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.EventQueue;
-import java.awt.Font;
-
 import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.JEditorPane;
 import javax.swing.JTextField;
-//EBIN :D
-//TEST
-//TEST
+
 public class Gui {
 
 	private JFrame frame;
