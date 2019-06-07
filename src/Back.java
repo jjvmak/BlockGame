@@ -4,8 +4,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.swing.JPanel;
 import javax.swing.Timer;
@@ -21,11 +24,11 @@ public class Back extends JPanel implements ActionListener, KeyListener {
 	private Timer timer;
 	private int enemyXPos = 550;
 	private int enemyYPos = 0;
-	public ArrayList<Rock> rocks = new ArrayList<>();
+	public Map<String, Rock> rocks = new HashMap<String, Rock>();
 	private int matchNumber = 1;
 	private boolean shouldRender = true;
 	private Graph graph;
-	private ArrayList<Node> nodes;
+	private Map<String, Node> nodes = new HashMap<String, Node>();
 
 	public Back() {
 
@@ -38,24 +41,24 @@ public class Back extends JPanel implements ActionListener, KeyListener {
 	}
 
 	public void initTestingMap() {
-	
-		rocks.add(new Rock(50, 50));
-		rocks.add(new Rock(50, 100));
-		rocks.add(new Rock(100, 300));
-		rocks.add(new Rock(200, 200));
-		rocks.add(new Rock(250, 200));
-		rocks.add(new Rock(300, 200));
-		rocks.add(new Rock(300, 250));
-		rocks.add(new Rock(200, 250));
-		//trap at 250,250
-		rocks.add(new Rock(200, 150));
-		rocks.add(new Rock(300, 150));
-		//trap at 250, 150
+		// TODO: fix
+//		rocks.add(new Rock(50, 50));
+//		rocks.add(new Rock(50, 100));
+//		rocks.add(new Rock(100, 300));
+//		rocks.add(new Rock(200, 200));
+//		rocks.add(new Rock(250, 200));
+//		rocks.add(new Rock(300, 200));
+//		rocks.add(new Rock(300, 250));
+//		rocks.add(new Rock(200, 250));
+		// trap at 250,250
+//		rocks.add(new Rock(200, 150));
+//		rocks.add(new Rock(300, 150));
+		// trap at 250, 150
 
-		//setPlayerXPos(150);
-		//setPlayerYPos(200);
-		//setEnemyXPos(300);
-		//setEnemyYPos(100);
+		// setPlayerXPos(150);
+		// setPlayerYPos(200);
+		// setEnemyXPos(300);
+		// setEnemyYPos(100);
 
 	}
 
@@ -72,10 +75,10 @@ public class Back extends JPanel implements ActionListener, KeyListener {
 				das += 50;
 			}
 
-			for (int i = 0; i < rocks.size(); i++) {
+			rocks.forEach((key, value) -> {
 				g.setColor(Color.GREEN);
-				g.fillRect(rocks.get(i).getxPos(), rocks.get(i).getyPos(), 50, 50);
-			}
+				g.fillRect(value.getxPos(), value.getyPos(), 50, 50);
+			});
 
 			g.setColor(Color.black);
 			g.fillRect(playerXPos, playerYPos, 50, 50);
@@ -98,7 +101,7 @@ public class Back extends JPanel implements ActionListener, KeyListener {
 	public void keyPressed(KeyEvent e) {
 
 		if (e.getKeyCode() == KeyEvent.VK_D) {
-			moveRight(); 
+			moveRight();
 
 		}
 
@@ -114,32 +117,31 @@ public class Back extends JPanel implements ActionListener, KeyListener {
 			moveDown();
 		}
 
-
 	}
 
 	public void moveRight() {
-		if (playerXPos < 550 && isPossibleMove(playerXPos+50, playerYPos)) {
+		if (playerXPos < 550 && isPossibleMove(playerXPos + 50, playerYPos)) {
 			playerXPos += 50;
 			nextMove();
 		}
 	}
 
 	public void moveLeft() {
-		if (playerXPos > 0 && isPossibleMove(playerXPos-50, playerYPos)) {
+		if (playerXPos > 0 && isPossibleMove(playerXPos - 50, playerYPos)) {
 			playerXPos -= 50;
 			nextMove();
 		}
 	}
 
 	public void moveUp() {
-		if (playerYPos > 0 && isPossibleMove(playerXPos, playerYPos-50)) {
+		if (playerYPos > 0 && isPossibleMove(playerXPos, playerYPos - 50)) {
 			playerYPos -= 50;
 			nextMove();
 		}
 	}
 
 	public void moveDown() {
-		if (playerYPos < 350 && isPossibleMove(playerXPos, playerYPos+50)) {
+		if (playerYPos < 350 && isPossibleMove(playerXPos, playerYPos + 50)) {
 			playerYPos += 50;
 			nextMove();
 		}
@@ -147,14 +149,10 @@ public class Back extends JPanel implements ActionListener, KeyListener {
 
 	@Override
 	public void keyReleased(KeyEvent e) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void keyTyped(KeyEvent e) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
@@ -166,15 +164,17 @@ public class Back extends JPanel implements ActionListener, KeyListener {
 	public void generateRocks(int n) {
 		int amount = n;
 		for (int i = 0; i < amount; i++) {
-			rocks.add(new Rock());
+			Rock rock = new Rock();
+			String key = rock.getxPos() + "x" + rock.getyPos() + "y";
+			rocks.put(key, rock);
 		}
 		makeGraph();
 	}
 
 	public void checkEndRule() {
 
-		int xEnd = Math.abs(playerXPos-enemyXPos);
-		int yEnd = Math.abs(playerYPos-enemyYPos);
+		int xEnd = Math.abs(playerXPos - enemyXPos);
+		int yEnd = Math.abs(playerYPos - enemyYPos);
 
 		if (xEnd <= 50 && yEnd <= 50) {
 			Gui.gameOver();
@@ -182,7 +182,6 @@ public class Back extends JPanel implements ActionListener, KeyListener {
 			try {
 				Thread.sleep(70);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
@@ -193,23 +192,21 @@ public class Back extends JPanel implements ActionListener, KeyListener {
 			playerYPos = 0;
 			enemyXPos = 550;
 			enemyYPos = 0;
-			rocks.removeAll(rocks);
+			rocks = new HashMap<String, Rock>();
 			generateRocks(20 - matchNumber);
-			Gui.appendText(""+matchNumber);
+			Gui.appendText("" + matchNumber);
 		}
 	}
 
 	public boolean isPossibleMove(int xPos, int yPos) {
-		for (int i = 0; i < rocks.size(); i++) {
-			if (xPos == rocks.get(i).getxPos() &&  yPos ==  rocks.get(i).getyPos()) {
-				return false;
-			}
-		}
+		String location = xPos + "x" + yPos + "y";
+		if (rocks.containsKey(location))
+			return false;
 		return true;
 	}
 
 	public void setMatch() {
-		Gui.appendText(""+matchNumber);
+		Gui.appendText("" + matchNumber);
 
 	}
 
@@ -247,70 +244,49 @@ public class Back extends JPanel implements ActionListener, KeyListener {
 
 	public void makeGraph() {
 		graph = new Graph();
-		nodes = new ArrayList<Node>();
+		nodes = new HashMap<String, Node>();
 		for (int x = 0; x <= 550; x += 50) {
 			for (int y = 0; y <= 350; y += 50) {
-				//System.out.println(x + " "+y);
 				Node node = new Node(x, y);
-				nodes.add(node);
+				String key = node.getx() + "x" + node.gety() + "y";
+				nodes.put(key, node);
 			}
 		}
 
-		for (int i = 0; i < nodes.size(); i++) {
+		nodes.forEach((key, node) -> {
 
-			int x = nodes.get(i).getx();
-			int y = nodes.get(i).gety();
+			int x = node.getx();
+			int y = node.gety();
 
-			if(!isPossibleMove(x, y)) {
-				continue;
+			if (!isPossibleMove(x, y)) {
+				return;
 			}
 
-			for (int j = 0; j < nodes.size(); j++) {
+			Map<String, Node> neighbouring = nodes.entrySet().stream()
+					.filter(neigh -> (neigh.getValue().getx() == x && neigh.getValue().gety() == y + 50
+							|| neigh.getValue().getx() == x + 50 && neigh.getValue().gety() == y
+							|| neigh.getValue().getx() == x && neigh.getValue().gety() == y - 50
+							|| neigh.getValue().getx() == x - 50 && neigh.getValue().gety() == y)
+							&& isPossibleMove(neigh.getValue().getx(), neigh.getValue().gety()))
+					.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
-				if (!isPossibleMove(nodes.get(j).getx(), nodes.get(j).gety())) {
-					continue;
-				}
-
-				if (nodes.get(j).getx() == x && nodes.get(j).gety() == y+50 ||
-						nodes.get(j).getx() == x+50 && nodes.get(j).gety() == y ||
-						nodes.get(j).getx() == x && nodes.get(j).gety() == y-50 ||
-						nodes.get(j).getx() == x-50 && nodes.get(j).gety() == y){
-
-					nodes.get(i).addDestination(nodes.get(j), 1);
-					graph.addNode(nodes.get(i));
-					// System.out.println("node "+nodes.get(i)+" is neighboring "+nodes.get(j));
-				}
-			}
-		}
+			neighbouring.forEach((k, val) -> {
+				node.addDestination(val, 1);
+			});
+			graph.addNode(node);
+		});
 	}
-	
+
 	public void nextMove() {
 		makeGraph();
-		Node target = null;
-	
-		for (int t = 0; t < nodes.size(); t++) {
-			if (nodes.get(t).getx() == playerXPos && nodes.get(t).gety() == playerYPos) {
-				 target = nodes.get(t);
-				 System.out.println("MY TARGET IS: " +playerXPos+","+playerYPos);
-			}
-		}
-		
+		Node target = nodes.get(playerXPos + "x" + playerYPos + "y");
 		graph = Shortestpath.calculateShortestPathFromSource(graph, target);
 		Set<Node> n = graph.getNodes();
-		
-		for (Node i : n) {
-			
-				if (i.getx() == enemyXPos && i.gety() == enemyYPos) {
-					System.out.println(i.getShortestPath());
-					System.out.println("MOVE TO: "+ i.getShortestPath().get(i.getShortestPath().size()-1));
-					Node tmp = i.getShortestPath().get(i.getShortestPath().size()-1);
-					int x = tmp.getx();
-					int y = tmp.gety();
-					setEnemyXPos(x);
-					setEnemyYPos(y);
-					break;
-				}
-			} 
+		Optional<Node> nodeOpt = n.stream().filter(nod -> (nod.getx() == enemyXPos && nod.gety() == enemyYPos))
+				.findFirst();
+		Node node = nodeOpt.get();
+		Node tmp = node.getShortestPath().get(node.getShortestPath().size()-1);
+		setEnemyXPos(tmp.getx());
+		setEnemyYPos(tmp.gety());
 	}
-
 }
